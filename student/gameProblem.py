@@ -29,12 +29,48 @@ class GameProblem(SearchProblem):
 
    # --------------- Common functions to a SearchProblem -----------------
 
+   X = 0
+   Y = 1
+
     def actions(self, state):
         '''Returns a LIST of the actions that may be executed in this state
         '''
-        acciones = []
+        actions = []
 
-        return acciones
+        # Retrieve the state information into the dictionary stateDate.
+        stateData = getStateData(self, state)
+        # Actual Position now holds a tuple which can be indexed like a list.
+        actualPosition = self.POSITIONS
+
+        # Check NORTH
+        if(actualPosition[Y] - 1 > 0) :
+            northPosition = (actualPosition[X], actualPosition[Y] - 1)
+            position_marker = getAttribute(self, northPosition, 'marker')
+            if (position_marker != 'X')
+                actions.append('North')
+
+        # Check EAST
+        if(actualPosition[X] + 1 < (CONFIG['map_size'][X] - 1)) :
+            eastPosition = (actualPosition[X] + 1, actualPosition[Y])
+            position_marker = getAttribute(self, eastPosition, 'marker')
+            if (position_marker != 'X')
+                actions.append('East')
+
+        # Check WEST
+        if(actualPosition[X] - 1 > 0) :
+            westPosition = (actualPosition[X] - 1, actualPosition[Y])
+            position_marker = getAttribute(self, westPosition, 'marker')
+            if (position_marker != 'X')
+                actions.append('West')
+
+        # Check SOUTH
+        if(actualPosition[Y] + 1 < (CONFIG['map_size'][Y] - 1) :
+            southPosition = (actualPosition[X], actualPosition[Y] + 1)
+            position_marker = getAttribute(self, southPosition, 'marker')
+            if (position_marker != 'X')
+                actions.append('South')
+
+        return actions
 
 
     def result(self, state, action):
@@ -48,6 +84,9 @@ class GameProblem(SearchProblem):
     def is_goal(self, state):
         '''Returns true if state is the final state
         '''
+
+        # Final state is defined as the state where the deliverer is back at the Start
+        # and all pizzas have been delivered
         return True
 
     def cost(self, state, action, state2):
@@ -75,8 +114,8 @@ class GameProblem(SearchProblem):
         self.POSITIONS = None
 
         print '\nMAP: ', self.MAP, '\n'
-	print 'POSITIONS: ', self.POSITIONS, '\n'
-	print 'CONFIG: ', self.CONFIG, '\n'
+        print 'POSITIONS: ', self.POSITIONS, '\n'
+        print 'CONFIG: ', self.CONFIG, '\n'
 
         initial_state = None
         final_state= None
