@@ -66,7 +66,7 @@ class GameProblem(SearchProblem):
         # Check SOUTH
         if(actualPosition[Y] + 1 < CONFIG['map_size'][Y] - 1):
             southPosition = (actualPosition[X], actualPosition[Y] + 1)
-            position_marker = getAttribute(self, southPosition, 'marker')
+            position_marker = getAttribute(self, southPosition, "marker")
             if (position_marker != 'X'):
                 actions.append('South')
 
@@ -117,16 +117,33 @@ class GameProblem(SearchProblem):
         print 'POSITIONS: ', self.POSITIONS, '\n'
         print 'CONFIG: ', self.CONFIG, '\n'
 
-        # We define the state as a tuple with the following "entities":
-        #   - Deliverer
-        #       > Coordinates (x, y)
-        #       > # Loaded Pizzas (0:2)
-        #   - Clients ()
-        #       >
-        #       >
-        initial_state = None
+        # We define the state as a tuple containing a mix of tuples and lists.
+        # These tuples/lists are the following entities:
+        #   - Deliverer                                 (tuple)
+        #       > Coordinates (x, y)                    (list)
+        #       > # Loaded Pizzas (0:2)                 (list of 1 elem)
+        #   - Clients (n clients)                       (tuple)
+        #       > Coordinates (x, y)                    (tuple)
+        #       > # Pizzas yet to be recieved (0:3)     (list of 1 elem)
+        #   - Pizza Shops (n pizza shops)               (tuple)
+        #       > Coordinates (x, y)                    (tuple)
 
-        final_state = None
+        # TODO: NOW INSTEAD OF HAVING THIS VARIABLES HARD-CODED, GET THEM FROM CONFIG
+        initial_state = (
+            ([0, 0], [0]), # Deliverer
+            ((9, 1), [1]), # Client 1
+            ((3, 3), [1]), # Client 2
+            ((4, 3), [2]), # Client 3
+            ((6, 0)) # Pizza Shop 1
+        )
+
+        final_state =  (
+            ([0, 0], [0]), # Deliverer
+            ((9, 1), [0]), # Client 1
+            ((3, 3), [0]), # Client 2
+            ((4, 3), [0]), # Client 3
+            ((6, 0)) # Pizza Shop 1
+        )
 
         algorithm = simpleai.search.astar
 
@@ -140,8 +157,9 @@ class GameProblem(SearchProblem):
 
     def printState (self,state):
         '''Return a string to pretty-print the state '''
-
         pps=''
+        # Iterate through the 
+
         return (pps)
 
     def getPendingRequests (self,state):

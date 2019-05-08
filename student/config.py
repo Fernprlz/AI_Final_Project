@@ -30,7 +30,7 @@ configuration = {
     "street": {
         "graphics":{
             "default": "game/graphics/logistics/street101.jpg",
-            "traversed": "game/graphics/logistics/street101Traversed.jpg"
+            "traversed": "game/graphics/logistics/street101Traversed.png"
             },
         "id":  "street",
         "marker": 'T',
