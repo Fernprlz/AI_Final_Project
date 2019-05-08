@@ -15,22 +15,22 @@ class GameProblem(SearchProblem):
 
     # Object attributes, can be accessed in the methods below
 
-    MAP=None
-    POSITIONS=None
-    INITIAL_STATE=None
-    GOAL=None
-    CONFIG=None
-    AGENT_START=None
-    SHOPS=None
-    CUSTOMERS=None
+    MAP = None
+    POSITIONS = None
+    INITIAL_STATE = None
+    GOAL = None
+    CONFIG = None
+    AGENT_START = None
+    SHOPS = None
+    CUSTOMERS = None
     MAXBAGS = 0
 
     MOVES = ('West','North','East','South')
 
    # --------------- Common functions to a SearchProblem -----------------
 
-   X = 0
-   Y = 1
+    X = 0
+    Y = 1
 
     def actions(self, state):
         '''Returns a LIST of the actions that may be executed in this state
@@ -43,31 +43,31 @@ class GameProblem(SearchProblem):
         actualPosition = self.POSITIONS
 
         # Check NORTH
-        if(actualPosition[Y] - 1 > 0) :
+        if(actualPosition[Y] - 1 > 0):
             northPosition = (actualPosition[X], actualPosition[Y] - 1)
             position_marker = getAttribute(self, northPosition, 'marker')
-            if (position_marker != 'X')
+            if (position_marker != 'X'):
                 actions.append('North')
 
         # Check EAST
-        if(actualPosition[X] + 1 < (CONFIG['map_size'][X] - 1)) :
+        if(actualPosition[X] + 1 < CONFIG['map_size'][X] - 1):
             eastPosition = (actualPosition[X] + 1, actualPosition[Y])
             position_marker = getAttribute(self, eastPosition, 'marker')
-            if (position_marker != 'X')
+            if (position_marker != 'X'):
                 actions.append('East')
 
         # Check WEST
-        if(actualPosition[X] - 1 > 0) :
+        if(actualPosition[X] - 1 > 0):
             westPosition = (actualPosition[X] - 1, actualPosition[Y])
             position_marker = getAttribute(self, westPosition, 'marker')
-            if (position_marker != 'X')
+            if (position_marker != 'X'):
                 actions.append('West')
 
         # Check SOUTH
-        if(actualPosition[Y] + 1 < (CONFIG['map_size'][Y] - 1) :
+        if(actualPosition[Y] + 1 < CONFIG['map_size'][Y] - 1):
             southPosition = (actualPosition[X], actualPosition[Y] + 1)
             position_marker = getAttribute(self, southPosition, 'marker')
-            if (position_marker != 'X')
+            if (position_marker != 'X'):
                 actions.append('South')
 
         return actions
@@ -117,9 +117,18 @@ class GameProblem(SearchProblem):
         print 'POSITIONS: ', self.POSITIONS, '\n'
         print 'CONFIG: ', self.CONFIG, '\n'
 
+        # We define the state as a tuple with the following "entities":
+        #   - Deliverer
+        #       > Coordinates (x, y)
+        #       > # Loaded Pizzas (0:2)
+        #   - Clients ()
+        #       >
+        #       >
         initial_state = None
-        final_state= None
-        algorithm= simpleai.search.astar
+
+        final_state = None
+
+        algorithm = simpleai.search.astar
 
         # TODO: Then again, here are the other search algorithms.
 
