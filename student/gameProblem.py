@@ -18,6 +18,11 @@ tile_State = 3
 X = 0
 Y = 1
 
+deliverer = 0
+coords = 0
+customers = 1
+pipsas = 1
+
 class GameProblem(SearchProblem):
 
     # Object attributes, can be accessed in the methods below
@@ -74,26 +79,25 @@ class GameProblem(SearchProblem):
     def result(self, state, action):
         '''Returns the state reached from this state when the given action is executed
         '''
-        next_state = deepcopy(state)
         #First option: North
         if (action=='North'):
             #Update deliverer coordinates
-            next_state[0][1] -= 1
-            #Check if there are pending delivery requests in the new deliverer's positions
-            marker = getAttribute(self, next_state[0], "marker")
-            if marker == 1 or marker == 2 or marker == 3:
+            state[deliverer][coords][Y] -= 1
+            #Check if there are pending delivery requests in the new deliverer's position
+            #marker = getAttribute(self, state[0], "marker")
+			if self.MAP[state[deliverer][coords][X]][state[deliverer][coords][Y]][tile_type] == 'customer1' 
+			or self.MAP[state[deliverer][coords][X]][state[deliverer][coords][Y]][tile_type] == 'customer2' 
+			or self.MAP[state[deliverer][coords][X]][state[deliverer][coords][Y]][tile_type] == 'customer3'):
                 #If a delivery request is detected, deliver the pizza
                 # TODO: tendria que mirar si el numero de requests actual es 0? o el marker se podria actualizar de alguna forma a 0?
                 # TODO: tendria que comprobar si el deliverer todavia tiene pizzas?
-                # if (next_state[1][0] > 0)
+                # if (state[1][0] > 0)
                 # Update corresponding request list: 3 customers
-                if cmp(next_state[0], next_state[2]) == 0:
-                    next_state[3][0] -= 1
-                elif cmp(next_state[0], next_state[4]) == 0:
-                    next_state[5][0] -= 1
-                elif cmp(next_state[0], next_state[6]) == 0:
-                    next_state[7][0] -= 1
-                next_state[1][0]-=1 # decrement in 1 the number of pizzas the deliverer has
+                for n in range len(state[customers]):
+					if cmp(state[customers][n][coords], state[deliverer][coords]) == 0:
+						state[customers][n][pipsas] -= 1
+				
+                state[deliverer][pipsas]-=1 # decrement in 1 the number of pizzas the deliverer has
 
         #Second option: East
         if (action=='East'):
