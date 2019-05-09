@@ -11,6 +11,13 @@ from simpleai.search import SearchProblem
 
 import simpleai.search
 
+tile_type = 0
+tile_ID = 1
+tile_Attr = 2
+tile_State = 3
+X = 0
+Y = 1
+
 class GameProblem(SearchProblem):
 
     # Object attributes, can be accessed in the methods below
@@ -28,14 +35,6 @@ class GameProblem(SearchProblem):
     MOVES = ('West','North','East','South')
 
    # --------------- Common functions to a SearchProblem -----------------
-
-    tile_type = 0
-    tile_ID = 1
-    tile_Attr = 2
-    tile_State = 3
-
-    X = 0
-    Y = 1
 
     def actions(self, state):
         '''Returns a LIST of the actions that may be executed in this state
@@ -71,7 +70,6 @@ class GameProblem(SearchProblem):
             actions.append('East')
 
         return actions
-
 
     def result(self, state, action):
         '''Returns the state reached from this state when the given action is executed
@@ -162,10 +160,14 @@ class GameProblem(SearchProblem):
     def is_goal(self, state):
         '''Returns true if state is the final state
         '''
+        result = False
 
         # Final state is defined as the state where the deliverer is back at the Start
         # and all pizzas have been delivered
-        return True
+        if state == final_state:
+            result = True
+
+        return result
 
     def cost(self, state, action, state2):
         '''Returns the cost of applying `action` from `state` to `state2`.
@@ -179,93 +181,98 @@ class GameProblem(SearchProblem):
         '''
         return 0
 
+    def setup (self):
+        '''This method must create the initial state, final state (if desired) and specify the algorithm to be used.
+           This values are later stored as globals that are used when calling the search algorithm.
+           final state is optional because it is only used inside the is_goal() method
 
-  def setup (self):
-    '''This method must create the initial state, final state (if desired) and specify the algorithm to be used.
-       This values are later stored as globals that are used when calling the search algorithm.
-       final state is optional because it is only used inside the is_goal() method
+           It also must set the values of the object attributes that the methods need, as for example, self.SHOPS or self.MAXBAGS
+        '''
+        #self.CONFIG = None
+        #self.MAP = None
+        #self.POSITIONS = None
 
-       It also must set the values of the object attributes that the methods need, as for example, self.SHOPS or self.MAXBAGS
-    '''
-    self.CONFIG = None
-    self.MAP = None
-    self.POSITIONS = None
+        print '\nMAP: ', self.MAP, '\n'
+        print 'POSITIONS: ', self.POSITIONS, '\n'
+        print 'CONFIG: ', self.CONFIG, '\n'
 
-    print '\nMAP: ', self.MAP, '\n'
-    print 'POSITIONS: ', self.POSITIONS, '\n'
-    print 'CONFIG: ', self.CONFIG, '\n'
+        # ==================== I N I T I A L _ S T A T E  ==================== #
 
-    # ==================== I N I T I A L _ S T A T E  ==================== #
+        ############# Create the Deliverer #############
+        # Create the list of coordinates. We chose a list because the agent will change positions.
+        del_Coords = list(self.POSITIONS['start'])  # TODO ERRORROARO651688879!!$&%/%&(%&/)=
+        # At the beginning no pizzas are loaded.
+        deliverer = (del_Coords, 0)
 
-    ############# Create the Deliverer #############
-    # Create the list of coordinates. We chose a list because the agent will change positions.
-    del_Coords = list(self.POSITIONS['start'])  # TODO ERRORROARO651688879!!$&%/%&(%&/)=
-    # At the beginning no pizzas are loaded.
-    deliverer = (del_Coords, 0)
+        ############# Create the Customers #############
+        customers = ()
+        if ('customer1' in self.POSITIONS):
+            for coords in self.POSITIONS['customer1']:
+                customers += (
+                                coords, # Coordinates of the client
+                                [self.MAP[coords[X]][coords[Y]][tile_Attr]['objects']] # Number of orders
+                             )
+        if ('customer2' in self.POSITIONS):
+            for coords in self.POSITIONS['customer2']:
+                customers += (
+                                coords, # Coordinates of the client
+                                [self.MAP[coords[X]][coords[Y]][tile_Attr]['objects']] # Number of orders
+                             )
+        if ('customer3' in self.POSITIONS):
+            for coords in self.POSITIONS['customer3']:
+                customers += (
+                                coords, # Coordinates of the client
+                                [self.MAP[coords[X]][coords[Y]][tile_Attr]['objects']] # Number of orders
+                             )
 
-    ############# Create the Customers #############
-    customers = ()
-    for coords in self.POSITIONS['customer1']:
-        customers += (
-                        coords, # Coordinates of the client
-                        [self.MAP[coords[X]][coords[Y]][tile_Attr]['objects']] # Number of orders
-                     )
+        ############ Create the Pizza Shops ############
+        shops = ()
+        for coords in self.POSITIONS['pizza']:
+            customers += (
+                            coords # Coordinates of the shop
+                         )
 
-    for coords in self.POSITIONS['customer2']:
-        customers += (
-                        coords, # Coordinates of the client
-                        [self.MAP[coords[X]][coords[Y]][tile_Attr]['objects']] # Number of orders
-                     )
+        ######### Join the initial_state tuple #########
+        initial_state = deliverer + customers + shops
 
-    for coords in self.POSITIONS['customer3']:
-        customers += (
-                        coords, # Coordinates of the client
-                        [self.MAP[coords[X]][coords[Y]][tile_Attr]['objects']] # Number of orders
-                     )
+        # ====================== F I N A L _ S T A T E  ====================== #
 
-    ############ Create the Pizza Shops ############
-    shops = ()
-    for coords in self.POSITIONS['pizza']:
-        customers += (
-                        coords # Coordinates of the shop
-                     )
+        ############# Create the Deliverer #############
+        # No pizzas loaded and deliverer back at the start position
+        del_Coords = list(self.POSITIONS['start'])
+        deliverer = (del_Coords, 0)
 
-    ######### Join the initial_state tuple #########
-    initial_state = deliverer + customers + shops
+        ############# Create the Customers #############
+        # No orders left to deliver
+        customers = ()
+        if ('customer1' in self.POSITIONS):
+            for coords in self.POSITIONS['customer1']:
+                customers += (coords, [0])
 
-    # ====================== F I N A L _ S T A T E  ====================== #
+        if ('customer2' in self.POSITIONS):
+            for coords in self.POSITIONS['customer2']:
+                customers += (coords, [0])
 
-    ############# Create the Deliverer #############
-    # No pizzas loaded and deliverer back at the start position
-    del_Coords = list(self.POSITIONS['start'])
-    deliverer = (del_Coords, 0)
+        if ('customer3' in self.POSITIONS):
+            for coords in self.POSITIONS['customer3']:
+                customers += (coords, [0])
 
-    ############# Create the Customers #############
-    # No orders left to deliver
-    customers = ()
-    for coords in self.POSITIONS['customer1']:
-        customers += (coords, [0])
+        ############ Create the Pizza Shops ############
+        shops = ()
+        for coords in self.POSITIONS['pizza']:
+            customers += (coords)
 
-    for coords in self.POSITIONS['customer2']:
-        customers += (coords, [0])
+        final_state = deliverer + customers + shops
 
-    for coords in self.POSITIONS['customer3']:
-        customers += (coords, [0])
+        # ==================================================================== #
 
-    ############ Create the Pizza Shops ############
-    shops = ()
-    for coords in self.POSITIONS['pizza']:
-        customers += (coords)
+        algorithm = simpleai.search.astar
 
-    # ==================================================================== #
+        #algorithm= simpleai.search.breadth_first
+        #algorithm= simpleai.search.depth_first
+        #algorithm= simpleai.search.limited_depth_first
 
-    algorithm = simpleai.search.astar
-
-    #algorithm= simpleai.search.breadth_first
-    #algorithm= simpleai.search.depth_first
-    #algorithm= simpleai.search.limited_depth_first
-
-    return initial_state,final_state,algorithm
+        return initial_state,final_state,algorithm
 
 
     def printState (self,state):

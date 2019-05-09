@@ -2,6 +2,16 @@
 
 ---
 
+## Progress:
+  * actions             **[OK!]**
+  * result              **[OK!]**
+  * is_goal             **[OK!]**
+  * cost
+  * heuristic
+  * setup               **[OK!]**
+  * printState
+  * getPendingRequests
+
 ## Submission:
   ZIP: *pr-ai-2019-100383461-100383462.zip*
   * Report
@@ -15,7 +25,8 @@
 ## Questions:
   * There can be 'n' number of clients.
   * There can be 'n' number of pizza shops.
-  *
+  * How do the algorithms interact with our class.
+  * Do we need to check again if an action is valid on the 'result' function?
 
 ## Notes:
   * MAP is a list of 4 positions. The 2 first indexes represent the coordinates of a tile
