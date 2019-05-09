@@ -40,6 +40,7 @@ class GameProblem(SearchProblem):
 
     MOVES = ('West','North','East','South')
 
+
    # --------------- Common functions to a SearchProblem -----------------
 
     def actions(self, state):
@@ -86,7 +87,7 @@ class GameProblem(SearchProblem):
         '''Returns the state reached from this state when the given action is executed
         '''
         next_state = ()
-	       #First option: North
+	    #First option: North
         if (action=='North'):
             #Update deliverer coordinates
 		    next_delCords = (state[deliverer][coords][X], state[deliverer][coords][Y] - 1)
@@ -129,17 +130,18 @@ class GameProblem(SearchProblem):
     	#Sixth option: Unload
     	if (action=='Unload'):
     		#Update client's pending orders
-    		next_clientState = ()
+            next_clients = ()
+            next_clientOrders = ()
     		for n in range len(state[customers]):
     			if (cmp(state[customers][n][coords], state[deliverer][coords]) == 0):
-    				next_clientState += (state[customers][n][pipsas]-1)
+    				next_clientOrders += state[customers][n][pipsas]-1
+                    next_clients += state[customers][n][coords] + next_clientOrders
     			else:
-    				next_clientState += state[customers][n]
+    				next_clientOrders += state[customers][n]
+                    next_clients += state[customers][n][coords] + next_clientOrders
 
-		#Create next state to return
-        next_state = state[deliverer] + next_clientState
-
-		#if getAttribute(self, next_delCords, 'objects') != None:
+		    #Create next state to return
+            next_state = state[deliverer] + next_clients
 
         return next_state
 
