@@ -11,6 +11,7 @@ from simpleai.search import SearchProblem
 
 import simpleai.search
 
+final_state = None
 tile_type = 0
 tile_ID = 1
 tile_Attr = 2
@@ -42,32 +43,39 @@ class GameProblem(SearchProblem):
         actions = []
 
         ######### Check NORTH #########
-        next_X = self.POSITION['agent'][X]
-        next_Y = self.POSITION['agent'][Y] - 1
 
-        if (self.POSITION['agent'][Y] - 1 > 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
-            actions.append('North')
+        next_X = self.POSITIONS['agent'][0][X]
+        next_Y = self.POSITIONS['agent'][0][Y] - 1
+        if (self.POSITIONS['agent'][0][Y] - 1 > 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
+                actions.append('North')
 
         ######### Check SOUTH #########
-        next_X = self.POSITION['agent'][X]
-        next_Y = self.POSITION['agent'][Y] + 1
 
-        if (self.POSITION['agent'][Y] + 1 <= self.CONFIG['map_size'][Y] - 1 and self.MAP[next_X][next_Y][tile_type] != 'building'):
-            actions.append('South')
+        if (self.POSITIONS['agent'][0][Y] + 1 <= self.CONFIG['map_size'][Y] - 1):
+            next_X = self.POSITIONS['agent'][0][X]
+            next_Y = self.POSITIONS['agent'][0][Y] + 1
+            if (self.MAP[next_X][next_Y][tile_type] != 'building'):
+                actions.append('South')
 
         ######### Check WEST #########
-        next_X = self.POSITION['agent'][X] - 1
-        next_Y = self.POSITION['agent'][Y]
 
-        if (self.POSITION['agent'][X] - 1 > 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
-            actions.append('West')
+        if (self.POSITIONS['agent'][0][X] - 1 > 0):
+            next_X = self.POSITIONS['agent'][0][X] - 1
+            next_Y = self.POSITIONS['agent'][0][Y]
+            if (self.MAP[next_X][next_Y][tile_type] != 'building'):
+                actions.append('West')
 
         ######### Check EAST #########
-        next_X = self.POSITION['agent'][X] + 1
-        next_Y = self.POSITION['agent'][Y]
 
-        if (self.POSITION['agent'][X] + 1 <= self.CONFIG['map_size'][X] - 1 and self.MAP[next_X][next_Y][tile_type] != 'building'):
-            actions.append('East')
+        if (self.POSITIONS['agent'][0][X] + 1 <= self.CONFIG['map_size'][X] - 1):
+            next_X = self.POSITIONS['agent'][0][X] + 1
+            next_Y = self.POSITIONS['agent'][0][Y]
+            if (self.MAP[next_X][next_Y][tile_type] != 'building'):
+                actions.append('East')
+
+        ######### Check LOAD #########
+
+        ######## Check UNLOAD #########
 
         return actions
 
@@ -164,7 +172,7 @@ class GameProblem(SearchProblem):
 
         # Final state is defined as the state where the deliverer is back at the Start
         # and all pizzas have been delivered
-        if state == final_state:
+        if (state == final_state):
             result = True
 
         return result
@@ -188,9 +196,6 @@ class GameProblem(SearchProblem):
 
            It also must set the values of the object attributes that the methods need, as for example, self.SHOPS or self.MAXBAGS
         '''
-        #self.CONFIG = None
-        #self.MAP = None
-        #self.POSITIONS = None
 
         print '\nMAP: ', self.MAP, '\n'
         print 'POSITIONS: ', self.POSITIONS, '\n'
@@ -200,7 +205,7 @@ class GameProblem(SearchProblem):
 
         ############# Create the Deliverer #############
         # Create the list of coordinates. We chose a list because the agent will change positions.
-        del_Coords = list(self.POSITIONS['start'])  # TODO ERRORROARO651688879!!$&%/%&(%&/)=
+        del_Coords = self.POSITIONS['start'][0]
         # At the beginning no pizzas are loaded.
         deliverer = (del_Coords, 0)
 
@@ -210,36 +215,29 @@ class GameProblem(SearchProblem):
             for coords in self.POSITIONS['customer1']:
                 customers += (
                                 coords, # Coordinates of the client
-                                [self.MAP[coords[X]][coords[Y]][tile_Attr]['objects']] # Number of orders
+                                self.MAP[coords[X]][coords[Y]][tile_Attr]['objects'] # Number of orders
                              )
         if ('customer2' in self.POSITIONS):
             for coords in self.POSITIONS['customer2']:
                 customers += (
                                 coords, # Coordinates of the client
-                                [self.MAP[coords[X]][coords[Y]][tile_Attr]['objects']] # Number of orders
+                                self.MAP[coords[X]][coords[Y]][tile_Attr]['objects'] # Number of orders
                              )
         if ('customer3' in self.POSITIONS):
             for coords in self.POSITIONS['customer3']:
                 customers += (
                                 coords, # Coordinates of the client
-                                [self.MAP[coords[X]][coords[Y]][tile_Attr]['objects']] # Number of orders
+                                self.MAP[coords[X]][coords[Y]][tile_Attr]['objects'] # Number of orders
                              )
 
-        ############ Create the Pizza Shops ############
-        shops = ()
-        for coords in self.POSITIONS['pizza']:
-            customers += (
-                            coords # Coordinates of the shop
-                         )
-
         ######### Join the initial_state tuple #########
-        initial_state = deliverer + customers + shops
+        initial_state = deliverer + customers
 
         # ====================== F I N A L _ S T A T E  ====================== #
 
         ############# Create the Deliverer #############
         # No pizzas loaded and deliverer back at the start position
-        del_Coords = list(self.POSITIONS['start'])
+        del_Coords = self.POSITIONS['start'][0]
         deliverer = (del_Coords, 0)
 
         ############# Create the Customers #############
@@ -247,22 +245,17 @@ class GameProblem(SearchProblem):
         customers = ()
         if ('customer1' in self.POSITIONS):
             for coords in self.POSITIONS['customer1']:
-                customers += (coords, [0])
+                customers += (coords, 0)
 
         if ('customer2' in self.POSITIONS):
             for coords in self.POSITIONS['customer2']:
-                customers += (coords, [0])
+                customers += (coords, 0)
 
         if ('customer3' in self.POSITIONS):
             for coords in self.POSITIONS['customer3']:
-                customers += (coords, [0])
+                customers += (coords, 0)
 
-        ############ Create the Pizza Shops ############
-        shops = ()
-        for coords in self.POSITIONS['pizza']:
-            customers += (coords)
-
-        final_state = deliverer + customers + shops
+        final_state = deliverer + customers
 
         # ==================================================================== #
 
@@ -287,6 +280,7 @@ class GameProblem(SearchProblem):
             MUST return None if the position is not a customer.
             This information is used to show the proper customer image.
         '''
+
         return None
 
     # -------------------------------------------------------------- #
