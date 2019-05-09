@@ -55,57 +55,55 @@ class GameProblem(SearchProblem):
                 actions.append('North')
 
         ######### Check SOUTH #########
-
-        if (self.POSITIONS['agent'][0][Y] + 1 <= self.CONFIG['map_size'][Y] - 1):
-            next_X = self.POSITIONS['agent'][0][X]
-            next_Y = self.POSITIONS['agent'][0][Y] + 1
-            if (self.MAP[next_X][next_Y][tile_type] != 'building'):
+        next_X = self.POSITIONS['agent'][0][X]
+        next_Y = self.POSITIONS['agent'][0][Y] + 1
+        if (self.POSITIONS['agent'][0][Y] + 1 <= self.CONFIG['map_size'][Y] - 1 and self.MAP[next_X][next_Y][tile_type] != 'building'):
                 actions.append('South')
 
         ######### Check WEST #########
-
-        if (self.POSITIONS['agent'][0][X] - 1 > 0):
-            next_X = self.POSITIONS['agent'][0][X] - 1
-            next_Y = self.POSITIONS['agent'][0][Y]
-            if (self.MAP[next_X][next_Y][tile_type] != 'building'):
+        next_X = self.POSITIONS['agent'][0][X] - 1
+        next_Y = self.POSITIONS['agent'][0][Y]
+        if (self.POSITIONS['agent'][0][X] - 1 > 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
                 actions.append('West')
 
         ######### Check EAST #########
-
-        if (self.POSITIONS['agent'][0][X] + 1 <= self.CONFIG['map_size'][X] - 1):
-            next_X = self.POSITIONS['agent'][0][X] + 1
-            next_Y = self.POSITIONS['agent'][0][Y]
-            if (self.MAP[next_X][next_Y][tile_type] != 'building'):
+        next_X = self.POSITIONS['agent'][0][X] + 1
+        next_Y = self.POSITIONS['agent'][0][Y]
+        if (self.POSITIONS['agent'][0][X] + 1 <= self.CONFIG['map_size'][X] - 1 and self.MAP[next_X][next_Y][tile_type] != 'building'):
                 actions.append('East')
 
         ######### Check LOAD #########
+        if (self.POSITIONS['agent'][0] in self.POSITIONS['pizza']):
+            actions.append('Load')
 
         ######## Check UNLOAD #########
+        if (self.POSITIONS['agent'][0] in state[customers] and getAttribute(self, self.POSITIONS['agent'][0], 'object') > 0):
+            actions.append('Unload')
 
         return actions
 
     def result(self, state, action):
                '''Returns the state reached from this state when the given action is executed
         '''
-		# POSITIONS: { 
-		#'building': [(1, 3), (2, 0), (3, 2), (4, 1), (6, 1)], 
-		#'customer1': [(9, 1), (9, 3)], 
-		#'customer2': [(4, 3)], 
-		#'agent': [(0, 0)], 
+		# POSITIONS: {
+		#'building': [(1, 3), (2, 0), (3, 2), (4, 1), (6, 1)],
+		#'customer1': [(9, 1), (9, 3)],
+		#'customer2': [(4, 3)],
+		#'agent': [(0, 0)],
 		#'start': [(0, 0)],
-		#'street': [(0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2), (2, 3), (3, 0), (3, 1), (3, 3), (4, 0), (4, 2), (5, 0), (5, 1), (5, 2), (5, 3), (6, 2), (6, 3), (7, 0), (7, 1), (7, 2), (7, 3), (8, 0), (8, 1), (8, 2), (8, 3), (9, 0), (9, 2)], 
+		#'street': [(0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2), (2, 1), (2, 2), (2, 3), (3, 0), (3, 1), (3, 3), (4, 0), (4, 2), (5, 0), (5, 1), (5, 2), (5, 3), (6, 2), (6, 3), (7, 0), (7, 1), (7, 2), (7, 3), (8, 0), (8, 1), (8, 2), (8, 3), (9, 0), (9, 2)],
 		#'pizza': [(6, 0)]
 		# }
         next_state = 0
-		
-	#First option: North		
+
+	#First option: North
         if (action=='North'):
             #Update deliverer coordinates
-		next_delCords = (state[deliverer][coords][X], state[deliverer][coords][Y] - 1) 			
+		    next_delCords = (state[deliverer][coords][X], state[deliverer][coords][Y] - 1)
 		#Create next state to return
 		next_delState = (next_delCords, state[deliverer][pipsas])
 		next_state = next_delState + state[customers]
-			
+
         #Second option: East
         if (action=='East'):
             #Update deliverer coordinates
@@ -121,7 +119,7 @@ class GameProblem(SearchProblem):
             #Create next state to return
 		next_delState = (next_delCords, state[deliverer][pipsas])
 		next_state = next_delState + state[customers]
-			
+
         #Fourth option: West
         if (action=='West'):
             #Update deliverer coordinates
@@ -129,7 +127,7 @@ class GameProblem(SearchProblem):
             #Create next state to return
 		next_delState = (next_delCords, state[deliverer][pipsas])
 		next_state = next_delState + state[customers]
-				
+
 	#Fifth option: Load
 	if (action=='Load'):
 		#Update deliverer's loaded pizzas
@@ -137,25 +135,25 @@ class GameProblem(SearchProblem):
 		#Create next state to return
 		next_delState = (state[deliverer][coords], next_delPizzas)
 		next_state = next_delState + state[customers]
-			
+
 	#Sixth option: Unload
 	if (action=='Unload'):
 		#Update client's pending orders
 		next_clientPizzas = ()
 		next_clientN = ()
 		next_clientState = ()
-		for n in range len(state[customers]):				
+		for n in range len(state[customers]):
 			if cmp(state[customers][n][coords], state[deliverer][coords]) == 0:
 				next_clientPizzas += (state[customers][n][pipsas]-1)
 				next_clientN +
 			else:
 				next_clientState += state[customers][n]
-				
+
 		#Create next state to return
-			
-			
+
+
 		#if getAttribute(self, next_delCords, 'objects') != None:
-		
+
         return next_state
 
     def is_goal(self, state):
