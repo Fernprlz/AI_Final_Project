@@ -29,6 +29,11 @@ class GameProblem(SearchProblem):
 
    # --------------- Common functions to a SearchProblem -----------------
 
+    tile_type = 0
+    tile_ID = 1
+    tile_Attr = 2
+    tile_State = 3
+
     X = 0
     Y = 1
 
@@ -37,38 +42,33 @@ class GameProblem(SearchProblem):
         '''
         actions = []
 
-        # Retrieve the state information into the dictionary stateDate.
-        stateData = getStateData(self, state)
-        # Actual Position now holds a tuple which can be indexed like a list.
-        actualPosition = self.POSITIONS
+        ######### Check NORTH #########
+        next_X = self.POSITION['agent'][X]
+        next_Y = self.POSITION['agent'][Y] - 1
 
-        # Check NORTH
-        if(actualPosition[Y] - 1 > 0):
-            northPosition = (actualPosition[X], actualPosition[Y] - 1)
-            position_marker = getAttribute(self, northPosition, 'marker')
-            if (position_marker != 'X'):
-                actions.append('North')
+        if (self.POSITION['agent'][Y] - 1 > 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
+            actions.append('North')
 
-        # Check EAST
-        if(actualPosition[X] + 1 < CONFIG['map_size'][X] - 1):
-            eastPosition = (actualPosition[X] + 1, actualPosition[Y])
-            position_marker = getAttribute(self, eastPosition, 'marker')
-            if (position_marker != 'X'):
-                actions.append('East')
+        ######### Check SOUTH #########
+        next_X = self.POSITION['agent'][X]
+        next_Y = self.POSITION['agent'][Y] + 1
 
-        # Check WEST
-        if(actualPosition[X] - 1 > 0):
-            westPosition = (actualPosition[X] - 1, actualPosition[Y])
-            position_marker = getAttribute(self, westPosition, 'marker')
-            if (position_marker != 'X'):
-                actions.append('West')
+        if (self.POSITION['agent'][Y] + 1 <= self.CONFIG['map_size'][Y] - 1 and self.MAP[next_X][next_Y][tile_type] != 'building'):
+            actions.append('South')
 
-        # Check SOUTH
-        if(actualPosition[Y] + 1 < CONFIG['map_size'][Y] - 1):
-            southPosition = (actualPosition[X], actualPosition[Y] + 1)
-            position_marker = getAttribute(self, southPosition, "marker")
-            if (position_marker != 'X'):
-                actions.append('South')
+        ######### Check WEST #########
+        next_X = self.POSITION['agent'][X] - 1
+        next_Y = self.POSITION['agent'][Y]
+
+        if (self.POSITION['agent'][X] - 1 > 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
+            actions.append('West')
+
+        ######### Check EAST #########
+        next_X = self.POSITION['agent'][X] + 1
+        next_Y = self.POSITION['agent'][Y]
+
+        if (self.POSITION['agent'][X] + 1 <= self.CONFIG['map_size'][X] - 1 and self.MAP[next_X][next_Y][tile_type] != 'building'):
+            actions.append('East')
 
         return actions
 
@@ -117,37 +117,53 @@ class GameProblem(SearchProblem):
         print 'POSITIONS: ', self.POSITIONS, '\n'
         print 'CONFIG: ', self.CONFIG, '\n'
 
-        # We define the state as a tuple containing a mix of tuples and lists.
-        # These tuples/lists are the following entities:
-        #   - Deliverer                                 (tuple)
-        #       > Coordinates (x, y)                    (list)
-        #       > # Loaded Pizzas (0:2)                 (list of 1 elem)
-        #   - Clients (n clients)                       (tuple)
-        #       > Coordinates (x, y)                    (tuple)
-        #       > # Pizzas yet to be recieved (0:3)     (list of 1 elem)
-        #   - Pizza Shops (n pizza shops)               (tuple)
-        #       > Coordinates (x, y)                    (tuple)
+        # ==================== I N I T I A L _ S T A T E  ==================== #
 
-        # TODO: NOW INSTEAD OF HAVING THIS VARIABLES HARD-CODED, GET THEM FROM CONFIG
-        initial_state = (
-            ([0, 0], [0]), # Deliverer
-            ((9, 1), [1]), # Client 1
-            ((3, 3), [1]), # Client 2
-            ((4, 3), [2]), # Client 3
-            ((6, 0)) # Pizza Shop 1
-        )
+        ############# Create the Deliverer #############
+        # Create the list of coordinates. We chose a list because the agent will change positions.
+        del_Coords = list(self.POSITIONS['start'])  # TODO ERRORROARO651688879!!$&%/%&(%&/)=
+        # At the beginning no pizzas are loaded.
+        deliverer = (del_Coords, 0)
 
-        final_state =  (
-            ([0, 0], [0]), # Deliverer
-            ((9, 1), [0]), # Client 1
-            ((3, 3), [0]), # Client 2
-            ((4, 3), [0]), # Client 3
-            ((6, 0)) # Pizza Shop 1
-        )
+        ############# Create the Customers #############
+        customers = ()
+        for coords in self.POSITIONS['customer1']:
+            customers += (
+                            coords, # Coordinates of the client
+                            [self.MAP[coords[0]][coords[1]][2]['objects']] # Number of orders
+                         )
+
+        ############ Create the Pizza Shops ############
+        shops = ()
+        for coords in self.POSITIONS['pizza']:
+            customers += (
+                            coords # Coordinates of the shop
+                         )
+
+        ######### Join the initial_state tuple #########
+        initial_state = deliverer + customers + shops
+
+        # ====================== F I N A L _ S T A T E  ====================== #
+
+        ############# Create the Deliverer #############
+        # No pizzas loaded and deliverer back at the start position
+        del_Coords = list(self.POSITIONS['start'])
+        deliverer = (del_Coords, 0)
+
+        ############# Create the Customers #############
+        # No orders left to deliver
+        customers = ()
+        for coords in self.POSITIONS['customer1']:
+            customers += (coords, [0])
+
+        ############ Create the Pizza Shops ############
+        shops = ()
+        for coords in self.POSITIONS['pizza']:
+            customers += (coords)
+
+        # ==================================================================== #
 
         algorithm = simpleai.search.astar
-
-        # TODO: Then again, here are the other search algorithms.
 
         #algorithm= simpleai.search.breadth_first
         #algorithm= simpleai.search.depth_first
@@ -158,7 +174,7 @@ class GameProblem(SearchProblem):
     def printState (self,state):
         '''Return a string to pretty-print the state '''
         pps=''
-        # Iterate through the 
+        # Iterate through the
 
         return (pps)
 

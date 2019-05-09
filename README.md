@@ -12,6 +12,48 @@
     * Personal Comments.
   * Directory: *pr-ia-2019/student-code*
 
+## Questions:
+  * There can be 'n' number of clients.
+  * There can be 'n' number of pizza shops.
+  *
+
+## Notes:
+  * MAP is a list of 4 positions. The 2 first indexes represent the coordinates of a tile
+  in the map. The third one represents the data you want to retrieve:
+    * [0] - Type of tile (street, whatever)
+    * [1] - ID of the tile. A number assigned for every tile of the same type. (A tile
+      can be the 5th street tile, therefore its ID is 5).
+    * [2] - Attributes (dictionary with the cost and some data depending on the tile type)
+    * [3] - State (dictionary stating if there's an agent on the tile and if the image has to
+    be other than default).
+  * POSITIONS is a dictionary saving the positions of all tiles per type of tile. There are
+  7 keys on the dictionary:
+    * 'building'
+    * 'customer1'
+    * 'customer2'
+    * 'agent'
+    * 'start'
+    * 'street'
+    * 'pizza'
+  * STATES are tuples. type(initial_state) returns "tuple", but we have to design the contents.
+
+  ------
+
+### Definition of State
+
+We define the state as a tuple containing a mix of tuples and lists.
+These tuples/lists are the following entities:
+  - Deliverer                               (tuple)
+    - Coordinates (x, y)                    (list)
+    - # Loaded Pizzas (0:2)                 (list of 1 elem)
+  - Clients                                 (list)
+    - (n clients)                           (tuple)
+      - Coordinates (x, y)                  (tuple
+      - # Pizzas yet to be recieved (0:3)   (list of 1 elem)
+  - Pizza Shops                             (list)
+    - (n pizza shops)                       (list)
+      - Coordinates (x, y)                  (tuple)
+
 ### Credits for the images:
   * Buildings:
     * Icons made by https://www.flaticon.com/authors/dinosoftlabs
