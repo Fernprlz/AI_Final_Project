@@ -45,11 +45,11 @@ We define the state as a tuple containing a mix of tuples and lists.
 These tuples/lists are the following entities:
   - Deliverer                               (tuple)
     - Coordinates (x, y)                    (list)
-    - # Loaded Pizzas (0:2)                 (list of 1 elem)
+    - ºLoaded Pizzas (0:2)                 (list of 1 elem)
   - Clients                                 (list)
     - (n clients)                           (tuple)
       - Coordinates (x, y)                  (tuple
-      - # Pizzas yet to be recieved (0:3)   (list of 1 elem)
+      - ºPizzas yet to be recieved (0:3)   (list of 1 elem)
   - Pizza Shops                             (list)
     - (n pizza shops)                       (list)
       - Coordinates (x, y)                  (tuple)
