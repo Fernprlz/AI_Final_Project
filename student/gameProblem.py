@@ -3,7 +3,7 @@
     Class gameProblem, implements simpleai.search.SearchProblem
 '''
 
-
+from copy import deepcopy
 from simpleai.search import SearchProblem
 
 # TODO: I suppose this part is used on the second part of the assignment.
@@ -45,21 +45,21 @@ class GameProblem(SearchProblem):
         # Check NORTH
         if(actualPosition[Y] - 1 > 0):
             northPosition = (actualPosition[X], actualPosition[Y] - 1)
-            position_marker = getAttribute(self, northPosition, 'marker')
+            position_marker = getAttribute(self, northPosition, "marker")
             if (position_marker != 'X'):
                 actions.append('North')
 
         # Check EAST
         if(actualPosition[X] + 1 < CONFIG['map_size'][X] - 1):
             eastPosition = (actualPosition[X] + 1, actualPosition[Y])
-            position_marker = getAttribute(self, eastPosition, 'marker')
+            position_marker = getAttribute(self, eastPosition, "marker")
             if (position_marker != 'X'):
                 actions.append('East')
 
         # Check WEST
         if(actualPosition[X] - 1 > 0):
             westPosition = (actualPosition[X] - 1, actualPosition[Y])
-            position_marker = getAttribute(self, westPosition, 'marker')
+            position_marker = getAttribute(self, westPosition, "marker")
             if (position_marker != 'X'):
                 actions.append('West')
 
@@ -76,8 +76,86 @@ class GameProblem(SearchProblem):
     def result(self, state, action):
         '''Returns the state reached from this state when the given action is executed
         '''
-        next_state = 0
+        next_state = deepcopy(state)
+        #First option: North
+        if (action=='North'):
+            #Update deliverer coordinates
+            next_state[0][1] -= 1
+            #Check if there are pending delivery requests in the new deliverer's positions
+            marker = getAttribute(self, next_state[0], "marker")
+            if marker == 1 or marker == 2 or marker == 3:
+                #If a delivery request is detected, deliver the pizza
+                # TODO: tendria que mirar si el numero de requests actual es 0? o el marker se podria actualizar de alguna forma a 0?
+                # TODO: tendria que comprobar si el deliverer todavia tiene pizzas?
+                # if (next_state[1][0] > 0)
+                # Update corresponding request list: 3 customers
+                if cmp(next_state[0], next_state[2]) == 0:
+                    next_state[3][0] -= 1
+                elif cmp(next_state[0], next_state[4]) == 0:
+                    next_state[5][0] -= 1
+                elif cmp(next_state[0], next_state[6]) == 0:
+                    next_state[7][0] -= 1
+                next_state[1][0]-=1 # decrement in 1 the number of pizzas the deliverer has
 
+        #Second option: East
+        if (action=='East'):
+            #Update deliverer coordinates
+            next_state[0][0] += 1
+            #Check if there are pending delivery requests in the new deliverer's positions
+            marker = getAttribute(self, next_state[0], "marker")
+            if (marker == 1 or marker == 2 or marker == 3):
+                #If a delivery request is detected, deliver the pizza
+                # TODO: tendria que mirar si el numero de requests actual es 0? o el marker se podria actualizar de alguna forma a 0?
+                # TODO: tendria que comprobar si el deliverer todavia tiene pizzas?
+                # if (next_state[1][0] > 0)
+                # Update corresponding request list: 3 customers
+                if cmp(next_state[0], next_state[2]) == 0:
+                    next_state[3][0] -= 1
+                elif cmp(next_state[0], next_state[4]) == 0:
+                    next_state[5][0] -= 1
+                elif cmp(next_state[0], next_state[6]) == 0:
+                    next_state[7][0] -= 1
+                next_state[1][0]-=1 # decrement in 1 the number of pizzas the deliverer has
+
+        #Third option: South
+        if (action=='South'):
+            #Update deliverer coordinates
+            next_state[0][1] += 1
+            #Check if there are pending delivery requests in the new deliverer's positions
+            marker = getAttribute(self, next_state[0], "marker")
+            if (marker == 1 or marker == 2 or marker == 3):
+                #If a delivery request is detected, deliver the pizza
+                # TODO: tendria que mirar si el numero de requests actual es 0? o el marker se podria actualizar de alguna forma a 0?
+                # TODO: tendria que comprobar si el deliverer todavia tiene pizzas?
+                # if (next_state[1][0] > 0)
+                # Update corresponding request list: 3 customers
+                if cmp(next_state[0], next_state[2]) == 0:
+                    next_state[3][0] -= 1
+                elif cmp(next_state[0], next_state[4]) == 0:
+                    next_state[5][0] -= 1
+                elif cmp(next_state[0], next_state[6]) == 0:
+                    next_state[7][0] -= 1
+                next_state[1][0]-=1 # decrement in 1 the number of pizzas the deliverer has
+
+        #Fourth option: West
+        if (action=='West'):
+            #Update deliverer coordinates
+            next_state[0][0] -= 1
+            #Check if there are pending delivery requests in the new deliverer's positions
+            marker = getAttribute(self, next_state[0], "marker")
+            if (marker == 1 or marker == 2 or marker == 3):
+                #If a delivery request is detected, deliver the pizza
+                # TODO: tendria que mirar si el numero de requests actual es 0? o el marker se podria actualizar de alguna forma a 0?
+                # TODO: tendria que comprobar si el deliverer todavia tiene pizzas?
+                # if (next_state[1][0] > 0)
+                # Update corresponding request list: 3 customers
+                if cmp(next_state[0], next_state[2]) == 0:
+                    next_state[3][0] -= 1
+                elif cmp(next_state[0], next_state[4]) == 0:
+                    next_state[5][0] -= 1
+                elif cmp(next_state[0], next_state[6]) == 0:
+                    next_state[7][0] -= 1
+                next_state[1][0]-=1 # decrement in 1 the number of pizzas the deliverer has
         return next_state
 
 
@@ -124,7 +202,7 @@ class GameProblem(SearchProblem):
         #       > # Loaded Pizzas (0:2)                 (list of 1 elem)
         #   - Clients (n clients)                       (tuple)
         #       > Coordinates (x, y)                    (tuple)
-        #       > # Pizzas yet to be recieved (0:3)     (list of 1 elem)
+        #       > # Pizzas yet to be received (0:3)     (list of 1 elem)
         #   - Pizza Shops (n pizza shops)               (tuple)
         #       > Coordinates (x, y)                    (tuple)
 
@@ -158,7 +236,7 @@ class GameProblem(SearchProblem):
     def printState (self,state):
         '''Return a string to pretty-print the state '''
         pps=''
-        # Iterate through the 
+        # Iterate through the
 
         return (pps)
 
