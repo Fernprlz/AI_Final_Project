@@ -9,8 +9,8 @@
   * cost
   * heuristic
   * setup               **[OK!]**
-  * printState
-  * getPendingRequests
+  * printState          **[OK!]**
+  * getPendingRequests  **[OK!]**
 
 ## Submission:
   ZIP: *pr-ai-2019-100383461-100383462.zip*
@@ -56,11 +56,11 @@ We define the state as a tuple containing a mix of tuples and lists.
 These tuples/lists are the following entities:
   - Deliverer                               (tuple)
     - Coordinates (x, y)                    (list)
-    - ºLoaded Pizzas (0:2)                 (list of 1 elem)
+    - º Loaded Pizzas (0:2)                 (list of 1 elem)
   - Clients                                 (list)
     - (n clients)                           (tuple)
       - Coordinates (x, y)                  (tuple
-      - ºPizzas yet to be recieved (0:3)   (list of 1 elem)
+      - º Pizzas yet to be recieved (0:3)   (list of 1 elem)
   - Pizza Shops                             (list)
     - (n pizza shops)                       (list)
       - Coordinates (x, y)                  (tuple)
