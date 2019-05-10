@@ -54,7 +54,7 @@ class GameProblem(SearchProblem):
         #   self.POSITIONS['agent'][0][Y] - 1
         next_X = state[deliverer][coords][X]
         next_Y = state[deliverer][coords][Y] - 1
-        if (state[deliverer][coords][Y] - 1 > 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
+        if (state[deliverer][coords][Y] - 1 >= 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
                 actions.append('North')
 
         ######### Check SOUTH #########
@@ -66,7 +66,7 @@ class GameProblem(SearchProblem):
         ######### Check WEST #########
         next_X = state[deliverer][coords][X] - 1
         next_Y = state[deliverer][coords][Y]
-        if (state[deliverer][coords][X] - 1 > 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
+        if (state[deliverer][coords][X] - 1 >= 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
                 actions.append('West')
 
         ######### Check EAST #########
@@ -88,7 +88,7 @@ class GameProblem(SearchProblem):
         if (state[deliverer][pizzas] > 0):
             # Couldn't use 'in' operator because the tuple has an int, which is not an iterable object
             for customer_number in range(len(state[customers])):
-                if (state[deliverer][coords] == state[customers][customer_number][coords]):
+                if (state[deliverer][coords] == state[customers][customer_number][coords] and state[customers][customer_number][pizzas]>0):
                     actions.append('Unload')
                     break
 
@@ -167,12 +167,16 @@ class GameProblem(SearchProblem):
     def is_goal(self, state):
         '''Returns true if state is the final state
         '''
-        result = False
-
+        result = True
         # Final state is defined as the state where the deliverer is back at the Start
         # and all pizzas have been delivered
-        if (state == final_state):
-            result = True
+        if state[deliverer][coords][X]!=0 or state[deliverer][coords][Y]!=0:
+            result = False
+            return result
+        for customerN in range(len(state[customers])):
+            if (state[customers][customerN][pizzas]!=0):
+                result = False
+
 
         return result
 
@@ -181,12 +185,28 @@ class GameProblem(SearchProblem):
            The returned value is a number (integer or floating point).
            By default this function returns `1`.
         '''
+        result = 1
+
+        #source_module = self.POSITIONS['start'][0][X] + self.POSITIONS['start'][0][Y]
+        #target_module = state[deliverer][coords][X] + state[deliverer][coords][Y]
+
+        #result = deliverer_module - start_module;
+
         return 1
 
     def heuristic(self, state):
         '''Returns the heuristic for `state`
         '''
-        return 0
+        # Define the heuristic as the Manhattan distance from the deliverer to the start
+        # Without considering the pizzas yet to be unloaded
+        result = 0
+
+        #start_module = self.POSITIONS['start'][0][X] + self.POSITIONS['start'][0][Y]
+        #deliverer_module = state[deliverer][coords][X] + state[deliverer][coords][Y]
+
+        #result = deliverer_module - start_module;
+
+        return result
 
     def setup (self):
         '''This method must create the initial state, final state (if desired) and specify the algorithm to be used.
@@ -257,8 +277,8 @@ class GameProblem(SearchProblem):
 
         #algorithm = simpleai.search.astar
 
-        #algorithm= simpleai.search.breadth_first
-        algorithm= simpleai.search.depth_first
+        algorithm= simpleai.search.breadth_first
+        #algorithm= simpleai.search.depth_first
         #algorithm= simpleai.search.limited_depth_first
 
         print('\n%s' % (self.printState(initial_state)))
@@ -289,7 +309,6 @@ class GameProblem(SearchProblem):
             This information is used to show the proper customer image.
         '''
         print(state)
-        exit()
         result = None
         for customer_number in range(len(state[customers])):
             #Find corresponding client. If found, update result
