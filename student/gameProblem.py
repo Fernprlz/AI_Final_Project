@@ -40,6 +40,7 @@ class GameProblem(SearchProblem):
 
     MOVES = ('West','North','East','South')
 
+
    # --------------- Common functions to a SearchProblem -----------------
 
     def actions(self, state):
