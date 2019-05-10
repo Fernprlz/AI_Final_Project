@@ -22,7 +22,7 @@ Y = 1
 deliverer = 0
 coords = 0
 customers = 1
-pipsas = 1
+pizzas = 1
 
 class GameProblem(SearchProblem):
 
@@ -73,75 +73,78 @@ class GameProblem(SearchProblem):
                 actions.append('East')
 
         ######### Check LOAD #########
-        if (self.POSITIONS['agent'][0] in self.POSITIONS['pizza']):
+        if (self.POSITIONS['agent'][0] in self.POSITIONS['pizza'] and state[deliverer][pizzas] < 2):
             actions.append('Load')
 
         ######## Check UNLOAD #########
-        if (self.POSITIONS['agent'][0] in state[customers] and getAttribute(self, self.POSITIONS['agent'][0], 'object') > 0):
-            actions.append('Unload')
+        # If the deliverer has no pizzas, he cannot deliver
+        if (state[deliverer][pizzas] > 0):
+            # Couldn't use 'in' operator because the tuple has an int, which is not an iterable object
+            for customer_number in range(state[customers]):
+                if (self.POSITIONS['agent'][0] == state[customers][customer_number][coords]):
+                    actions.append('Unload')
+                    break
 
         return actions
 
-    def result(self, state, action):
-        '''Returns the state reached from this state when the given action is executed
-        '''
-        next_state = ()
-	       #First option: North
-        if (action=='North'):
-            #Update deliverer coordinates
-		    next_delCords = (state[deliverer][coords][X], state[deliverer][coords][Y] - 1)
-    		#Create next state to return
-            next_delState = (next_delCords, state[deliverer][pipsas])
-    		next_state = next_delState + state[customers]
+        def result(self, state, action):
+            '''Returns the state reached from this state when the given action is executed
+            '''
+            next_state = ()
+            #First option: North
+            if (action == 'North'):
+                #Update deliverer coordinates
+                next_delCords = (state[deliverer][coords][X], state[deliverer][coords][Y] - 1)
+                #Create next state to return
+                next_delState = (next_delCords, state[deliverer][pizzas])
+                next_state = next_delState + state[customers]
 
-        #Second option: East
-        if (action=='East'):
-            #Update deliverer coordinates
-            next_delCords = (state[deliverer][coords][X]+1, state[deliverer][coords][Y])
+            #Second option: East
+            if (action == 'East'):
+                #Update deliverer coordinates
+                next_delCords = (state[deliverer][coords][X]+1, state[deliverer][coords][Y])
+                #Create next state to return
+                next_delState = (next_delCords, state[deliverer][pizzas])
+                next_state = next_delState + state[customers]
+
+            #Third option: South
+            if (action == 'South'):
+                #Update deliverer coordinates
+                next_delCords = (state[deliverer][coords][X], state[deliverer][coords][Y]+1)
+                #Create next state to return
+                next_delState = (next_delCords, state[deliverer][pizzas])
+                next_state = next_delState + state[customers]
+
+            #Fourth option: West
+            if (action == 'West'):
+                #Update deliverer coordinates
+                next_delCords = (state[deliverer][coords][X]-1, state[deliverer][coords][Y])
+                #Create next state to return
+                next_delState = (next_delCords, state[deliverer][pizzas])
+                next_state = next_delState + state[customers]
+
+            #Fifth option: Load
+            if (action == 'Load'):
+                #Update deliverer's loaded pizzas
+                next_delPizzas = states[deliverer][pizzas]+1
+                #Create next state to return
+                next_delState = (state[deliverer][coords], next_delPizzas)
+                next_state = next_delState + state[customers]
+
+            #Sixth option: Unload
+            if (action == 'Unload'):
+                #Update client's pending orders
+                next_clientState = ()
+                for n in range(state[customers]):
+                    if (cmp(state[customers][n][coords], state[deliverer][coords]) == 0):
+                        next_clientState += (state[customers][n][pizzas]-1)
+                    else:
+                        next_clientState += state[customers][n]
+
             #Create next state to return
-    		next_delState = (next_delCords, state[deliverer][pipsas])
-    		next_state = next_delState + state[customers]
+            next_state = state[deliverer] + next_clientState
 
-        #Third option: South
-        if (action=='South'):
-            #Update deliverer coordinates
-            next_delCords = (state[deliverer][coords][X], state[deliverer][coords][Y]+1)
-            #Create next state to return
-    		next_delState = (next_delCords, state[deliverer][pipsas])
-    		next_state = next_delState + state[customers]
-
-        #Fourth option: West
-        if (action=='West'):
-            #Update deliverer coordinates
-            next_delCords = (state[deliverer][coords][X]-1, state[deliverer][coords][Y])
-            #Create next state to return
-    		next_delState = (next_delCords, state[deliverer][pipsas])
-    		next_state = next_delState + state[customers]
-
-    	#Fifth option: Load
-    	if (action=='Load'):
-    		#Update deliverer's loaded pizzas
-    		next_delPizzas = states[deliverer][pipsas]+1
-    		#Create next state to return
-    		next_delState = (state[deliverer][coords], next_delPizzas)
-    		next_state = next_delState + state[customers]
-
-    	#Sixth option: Unload
-    	if (action=='Unload'):
-    		#Update client's pending orders
-    		next_clientState = ()
-    		for n in range len(state[customers]):
-    			if (cmp(state[customers][n][coords], state[deliverer][coords]) == 0):
-    				next_clientState += (state[customers][n][pipsas]-1)
-    			else:
-    				next_clientState += state[customers][n]
-
-		#Create next state to return
-        next_state = state[deliverer] + next_clientState
-
-		#if getAttribute(self, next_delCords, 'objects') != None:
-
-        return next_state
+            return next_state
 
     def is_goal(self, state):
         '''Returns true if state is the final state
@@ -185,39 +188,37 @@ class GameProblem(SearchProblem):
         # Create the list of coordinates. We chose a list because the agent will change positions.
         del_Coords = self.POSITIONS['start'][0]
         # At the beginning no pizzas are loaded.
-        deliverer = (del_Coords, 0)
+        deliverer = ((del_Coords, 0))
 
         ############# Create the Customers #############
-        customers = ()
+        customersIndividual = ()
         if ('customer1' in self.POSITIONS):
             for coords in self.POSITIONS['customer1']:
-                customers += (
+                customersIndividual += (
                                 coords, # Coordinates of the client
                                 self.MAP[coords[X]][coords[Y]][tile_Attr]['objects'] # Number of orders
                              )
         if ('customer2' in self.POSITIONS):
             for coords in self.POSITIONS['customer2']:
-                customers += (
+                customersIndividual += (
                                 coords, # Coordinates of the client
                                 self.MAP[coords[X]][coords[Y]][tile_Attr]['objects'] # Number of orders
                              )
         if ('customer3' in self.POSITIONS):
             for coords in self.POSITIONS['customer3']:
-                customers += (
+                customersIndividual += (
                                 coords, # Coordinates of the client
                                 self.MAP[coords[X]][coords[Y]][tile_Attr]['objects'] # Number of orders
                              )
-
+        customersCollective = ((customersIndividual))
         ######### Join the initial_state tuple #########
-        initial_state = deliverer + customers
+        initial_state = (deliverer + customersCollective)
 
         # ====================== F I N A L _ S T A T E  ====================== #
 
         ############# Create the Deliverer #############
-        # No pizzas loaded and deliverer back at the start position
-        del_Coords = self.POSITIONS['start'][0]
-        deliverer = (del_Coords, 0)
-
+        # Deliverer has already been created above, so we reuse it.
+        # deliverer = (del_Coords, 0)
         ############# Create the Customers #############
         # No orders left to deliver
         customers = ()
@@ -233,7 +234,7 @@ class GameProblem(SearchProblem):
             for coords in self.POSITIONS['customer3']:
                 customers += (coords, 0)
 
-        final_state = deliverer + customers
+        final_state = (deliverer + customers)
 
         # ==================================================================== #
 
@@ -242,6 +243,8 @@ class GameProblem(SearchProblem):
         #algorithm= simpleai.search.breadth_first
         #algorithm= simpleai.search.depth_first
         #algorithm= simpleai.search.limited_depth_first
+
+        print('\n%s' % (self.printState(initial_state)))
 
         return initial_state,final_state,algorithm
 
@@ -252,15 +255,14 @@ class GameProblem(SearchProblem):
 
         # Add deliverer information to the pps
         pps += ('======== D E L I V E R E R    I N F O ======\n')
-        pps += ('Deliverer coordinates: ', state[deliverer][coords], '\n')
-        pps += ('Pizzas loaded: ', state[deliverer][pipsas],'\n')
-        pps += ('============================================\n')
+        pps += ('Deliverer coordinates: %s\n' % (state[deliverer],))
+        pps += ('Pizzas loaded: %i\n' % (state[deliverer][pizzas]))
+        pps += ('======== C U S T O M E R S    I N F O ======\n')
         # Add customer information
-        customer_number = 1
-        for customer in state[customers]:
-            pps += ('Customer ', customer_number++, ' coordinates: ', customer[coords], '\n')
-            pps += ('Customer orders left: ', customer[pipsas], '\n')
-            pps += ('======== C U S T O M E R S    I N F O ======\n')
+        for customer_number in range(state[customers]):
+            pps += ('Customer %i coordinates: %s\n' % (customer_number, state[customer][customer_number][coords]))
+            pps += ('Customer orders left: %i\n' % (state[customer][customer_number][pizzas]))
+            pps += ('============================================\n')
 
         return (pps)
 
@@ -269,8 +271,9 @@ class GameProblem(SearchProblem):
             MUST return None if the position is not a customer.
             This information is used to show the proper customer image.
         '''
+        result = None
 
-        return None
+        return result
 
     # -------------------------------------------------------------- #
     # --------------- DO NOT EDIT BELOW THIS LINE  ----------------- #
@@ -316,7 +319,6 @@ class GameProblem(SearchProblem):
         super(GameProblem,self).__init__(self.INITIAL_STATE)
 
         print ('-- INITIALIZATION OK')
-        print('\n',printState(initial_state))
         return True
 
     # END initializeProblem
