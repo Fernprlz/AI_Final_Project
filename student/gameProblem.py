@@ -273,6 +273,10 @@ class GameProblem(SearchProblem):
             This information is used to show the proper customer image.
         '''
         result = None
+        for customer_number in range(len(state[customers])):
+            #Find corresponding client. If found, update result
+            if (cmp(state[deliverer][coords], state[customers][customer_number][coords] == 0):
+                result = state[customers][customer_number][pizzas]
 
         return result
 
