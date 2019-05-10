@@ -81,7 +81,7 @@ class GameProblem(SearchProblem):
         # If the deliverer has no pizzas, he cannot deliver
         if (state[deliverer][pizzas] > 0):
             # Couldn't use 'in' operator because the tuple has an int, which is not an iterable object
-            for customer_number in range(state[customers]):
+            for customer_number in range(len(state[customers])):
                 if (self.POSITIONS['agent'][0] == state[customers][customer_number][coords]):
                     actions.append('Unload')
                     break
@@ -136,7 +136,7 @@ class GameProblem(SearchProblem):
             if (action == 'Unload'):
                 #Update client's pending orders
                 next_clientState = ()
-                for n in range(state[customers]):
+                for n in range(len(state[customers])):
                     if (cmp(state[customers][n][coords], state[deliverer][coords]) == 0):
                         next_clientState += (state[customers][n][pizzas]-1)
                     else:
@@ -192,50 +192,49 @@ class GameProblem(SearchProblem):
         deliverer = ((del_Coords, 0))
 
         ############# Create the Customers #############
-        customersIndividual = ()
+        customers = ()
         if ('customer1' in self.POSITIONS):
             for coords in self.POSITIONS['customer1']:
-                customersIndividual += (
+                customers += ((
                                 coords, # Coordinates of the client
                                 self.MAP[coords[X]][coords[Y]][tile_Attr]['objects'] # Number of orders
-                             )
+                             ),)
         if ('customer2' in self.POSITIONS):
             for coords in self.POSITIONS['customer2']:
-                customersIndividual += (
+                customers += ((
                                 coords, # Coordinates of the client
                                 self.MAP[coords[X]][coords[Y]][tile_Attr]['objects'] # Number of orders
-                             )
+                             ),)
         if ('customer3' in self.POSITIONS):
             for coords in self.POSITIONS['customer3']:
-                customersIndividual += (
+                customers += ((
                                 coords, # Coordinates of the client
                                 self.MAP[coords[X]][coords[Y]][tile_Attr]['objects'] # Number of orders
-                             )
-        customersCollective = ((customersIndividual))
+                             ),)
+
         ######### Join the initial_state tuple #########
-        initial_state = (deliverer + customersCollective)
+        initial_state = (deliverer,) + (customers,)
 
         # ====================== F I N A L _ S T A T E  ====================== #
 
         ############# Create the Deliverer #############
-        # Deliverer has already been created above, so we reuse it.
-        # deliverer = (del_Coords, 0)
+        deliverer = (del_Coords, 0)
         ############# Create the Customers #############
         # No orders left to deliver
         customers = ()
         if ('customer1' in self.POSITIONS):
             for coords in self.POSITIONS['customer1']:
-                customers += (coords, 0)
+                customers += ((coords, 0),)
 
         if ('customer2' in self.POSITIONS):
             for coords in self.POSITIONS['customer2']:
-                customers += (coords, 0)
+                customers += ((coords, 0),)
 
         if ('customer3' in self.POSITIONS):
             for coords in self.POSITIONS['customer3']:
-                customers += (coords, 0)
+                customers += ((coords, 0),)
 
-        final_state = (deliverer + customers)
+        final_state = (deliverer,) + (customers,)
 
         # ==================================================================== #
 
@@ -256,13 +255,13 @@ class GameProblem(SearchProblem):
 
         # Add deliverer information to the pps
         pps += ('======== D E L I V E R E R    I N F O ======\n')
-        pps += ('Deliverer coordinates: %s\n' % (state[deliverer],))
+        pps += ('Deliverer coordinates: %s\n' % (state[deliverer][coords],))
         pps += ('Pizzas loaded: %i\n' % (state[deliverer][pizzas]))
         pps += ('======== C U S T O M E R S    I N F O ======\n')
         # Add customer information
-        for customer_number in range(state[customers]):
-            pps += ('Customer %i coordinates: %s\n' % (customer_number, state[customer][customer_number][coords]))
-            pps += ('Customer orders left: %i\n' % (state[customer][customer_number][pizzas]))
+        for customer_number in range(len(state[customers])):
+            pps += ('Customer %i coordinates: %s\n' % (customer_number, state[customers][customer_number][coords]))
+            pps += ('Customer orders left: %i\n' % (state[customers][customer_number][pizzas]))
             pps += ('============================================\n')
 
         return (pps)
