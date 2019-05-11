@@ -1,13 +1,15 @@
 # AI_Final_Project
 
+
+# TODO: CHECK FINAL STATE ISSUE
 ---
 
 ## Progress:
   * actions             **[OK!]**
   * result              **[OK!]**
   * is_goal             **[OK!]**
-  * cost
-  * heuristic
+  * cost                **[OK1]**
+  * heuristic           **[OK1?]**
   * setup               **[OK!]**
   * printState          **[OK!]**
   * getPendingRequests  **[OK!]**

@@ -7,7 +7,7 @@ configuration = {
 "seed": None,
 "file": "./student/map.txt",
 "map_size": [10, 5],
-"delay": 0.1,
+"delay": 0.2,
 "debugMap": False,
 "debug": False,
 "save": False, #True

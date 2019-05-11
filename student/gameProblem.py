@@ -6,8 +6,7 @@
 from copy import deepcopy
 from simpleai.search import SearchProblem
 
-# TODO: I suppose this part is used on the second part of the assignment.
-# from simpleai.search import breadth_first,depth_first,astar,greedy
+from simpleai.search import breadth_first,depth_first,astar,greedy
 
 import simpleai.search
 
@@ -50,8 +49,6 @@ class GameProblem(SearchProblem):
 
         ######### Check NORTH #########
 
-        #   self.POSITIONS['agent'][0][X]
-        #   self.POSITIONS['agent'][0][Y] - 1
         next_X = state[deliverer][coords][X]
         next_Y = state[deliverer][coords][Y] - 1
         if (state[deliverer][coords][Y] - 1 >= 0 and self.MAP[next_X][next_Y][tile_type] != 'building'):
@@ -76,78 +73,79 @@ class GameProblem(SearchProblem):
                 actions.append('East')
 
         ######### Check LOAD #########
-        #if (state[deliverer][coords] in self.POSITIONS['pizza'] and state[deliverer][pizzas] < 2):
-            #actions.append('Load')
-        print('DELIVERER LOCATION:')
-        print(self.MAP[state[deliverer][coords][X]][state[deliverer][coords][Y]][tile_type])
-        if (self.MAP[state[deliverer][coords][X]][state[deliverer][coords][Y]][tile_type] == 'pizza' and state[deliverer][pizzas] < 2 ):
+        # If the deliverer is already at max capacity, he cannot load.
+        # DEBUGGING
+        #print('DELIVERER LOCATION:')
+        #print(self.MAP[state[deliverer][coords][X]][state[deliverer][coords][Y]][tile_type])
+        if (self.MAP[state[deliverer][coords][X]][state[deliverer][coords][Y]][tile_type] == 'pizza' and state[deliverer][pizzas] < self.MAXBAGS ):
             actions.append('Load')
 
         ######## Check UNLOAD #########
-        # If the deliverer has no pizzas, he cannot deliver
+        # If the deliverer has no pizzas, he cannot deliver.
         if (state[deliverer][pizzas] > 0):
             # Couldn't use 'in' operator because the tuple has an int, which is not an iterable object
             for customer_number in range(len(state[customers])):
-                if (state[deliverer][coords] == state[customers][customer_number][coords] and state[customers][customer_number][pizzas]>0):
+                if (state[deliverer][coords] == state[customers][customer_number][coords] and state[customers][customer_number][pizzas] > 0):
                     actions.append('Unload')
                     break
 
-        print('Possible actions from state:')
-        print(state)
-        print(actions)
+        # DEBUGGING
+        # print('Possible actions from state:')
+        # print(state)
+        # print(actions)
         return actions
 
     def result(self, state, action):
         '''Returns the state reached from this state when the given action is executed
         '''
         next_state = ()
-        #First option: North
+        # First option: North
         if (action == 'North'):
-            #     #Update deliverer coordinates
+            # Update deliverer coordinates
             next_delCords = (state[deliverer][coords][X], state[deliverer][coords][Y] - 1)
-            #Create next state to return
+            # Create next state to return
             next_delState = (next_delCords, state[deliverer][pizzas])
             next_state = (next_delState,) + (state[customers],)
 
-        #Second option: East
+        # Second option: East
         elif (action == 'East'):
-            #Update deliverer coordinates
+            # Update deliverer coordinates
             next_delCords = (state[deliverer][coords][X] + 1, state[deliverer][coords][Y])
-            #Create next state to return
+            # Create next state to return
             next_delState = (next_delCords, state[deliverer][pizzas])
             next_state = (next_delState,) + (state[customers],)
 
         #Third option: South
         elif (action == 'South'):
-            #Update deliverer coordinates
+            # Update deliverer coordinates
             next_delCords = (state[deliverer][coords][X], state[deliverer][coords][Y] + 1)
-            #Create next state to return
+            # Create next state to return
             next_delState = (next_delCords, state[deliverer][pizzas])
             next_state = (next_delState,) + (state[customers],)
 
-        #Fourth option: West
+        # Fourth option: West
         elif (action == 'West'):
-            #Update deliverer coordinates
+            # Update deliverer coordinates
             next_delCords = (state[deliverer][coords][X] - 1, state[deliverer][coords][Y])
-            #Create next state to return
+            # Create next state to return
             next_delState = (next_delCords, state[deliverer][pizzas])
             next_state = (next_delState,) + (state[customers],)
 
-        #Fifth option: Load
+        # Fifth option: Load
         elif (action == 'Load'):
-            #Update deliverer's loaded pizzas
+            # Update deliverer's loaded pizzas
             next_delPizzas = state[deliverer][pizzas] + 1
-            #Create next state to return
+            # Create next state to return
             next_delState = (state[deliverer][coords], next_delPizzas)
             next_state = (next_delState,) + (state[customers],)
 
-        #Sixth option: Unload
+        # Sixth option: Unload
         elif (action == 'Unload'):
-            #Update deliverer's loaded pizzas
+            # Update deliverer's loaded pizzas
             next_delPizzas = state[deliverer][pizzas] - 1
-            #Create next state to return
+            # Create next state to return
             next_delState = (state[deliverer][coords], next_delPizzas)
-            #Update client's pending orders
+            # Update client's pending orders
             next_clientState = ()
             for n in range(len(state[customers])):
                 if (cmp(state[customers][n][coords], state[deliverer][coords]) == 0):
@@ -155,28 +153,23 @@ class GameProblem(SearchProblem):
                 else:
                     next_clientState += ((state[customers][n]),)
 
-            #Create next state to return
+            # Create next state to return
             next_state = (next_delState,) + (next_clientState,)
 
         else:
             next_state = state
-        print(next_state)
+
+        # DEBUGGING
+        #print(next_state)
 
         return next_state
 
     def is_goal(self, state):
         '''Returns true if state is the final state
         '''
-        result = True
         # Final state is defined as the state where the deliverer is back at the Start
-        # and all pizzas have been delivered
-        if state[deliverer][coords][X]!=0 or state[deliverer][coords][Y]!=0:
-            result = False
-            return result
-        for customerN in range(len(state[customers])):
-            if (state[customers][customerN][pizzas]!=0):
-                result = False
-
+        # and all pizzas have been delivered.
+        result = (self.final_state == state)
 
         return result
 
@@ -198,13 +191,13 @@ class GameProblem(SearchProblem):
         '''Returns the heuristic for `state`
         '''
         # Define the heuristic as the Manhattan distance from the deliverer to the start
-        # Without considering the pizzas yet to be unloaded
+        # Without considering the pizzas yet to be unloaded (Basic Part )
         result = 0
 
-        #start_module = self.POSITIONS['start'][0][X] + self.POSITIONS['start'][0][Y]
-        #deliverer_module = state[deliverer][coords][X] + state[deliverer][coords][Y]
+        x_diff = abs(self.POSITIONS['start'][0][X] - state[deliverer][coords][X])
+        y_diff = abs(self.POSITIONS['start'][0][Y] - state[deliverer][coords][Y])
 
-        #result = deliverer_module - start_module;
+        result = x_diff + y_diff
 
         return result
 
@@ -216,9 +209,9 @@ class GameProblem(SearchProblem):
            It also must set the values of the object attributes that the methods need, as for example, self.SHOPS or self.MAXBAGS
         '''
 
-        print '\nMAP: ', self.MAP, '\n'
-        print 'POSITIONS: ', self.POSITIONS, '\n'
-        print 'CONFIG: ', self.CONFIG, '\n'
+        #print '\nMAP: ', self.MAP, '\n'
+        #print 'POSITIONS: ', self.POSITIONS, '\n'
+        #print 'CONFIG: ', self.CONFIG, '\n'
 
         # ==================== I N I T I A L _ S T A T E  ==================== #
 
@@ -227,6 +220,8 @@ class GameProblem(SearchProblem):
         del_Coords = self.POSITIONS['start'][0]
         # At the beginning no pizzas are loaded.
         deliverer = (del_Coords, 0)
+        # Initialize the maxBags variable
+        self.MAXBAGS = self.CONFIG['maxBags']
 
         ############# Create the Customers #############
         customers = ()
@@ -271,20 +266,29 @@ class GameProblem(SearchProblem):
             for coords in self.POSITIONS['customer3']:
                 customers += ((coords, 0),)
 
-        final_state = (deliverer,) + (customers,)
+        self.final_state = (deliverer,) + (customers,)
 
         # ==================================================================== #
 
-        #algorithm = simpleai.search.astar
+        # WORKS
+        algorithm = simpleai.search.astar
 
-        algorithm= simpleai.search.breadth_first
+        # WORKS
+        #algorithm= simpleai.search.breadth_first
+
+        # WORKS AND IS A SHIT
         #algorithm= simpleai.search.depth_first
+
+        # IDK IF IT WORKS
         #algorithm= simpleai.search.limited_depth_first
 
+        # WORKS AND IS EVEN MUCHISIMO MAS SHIT QUE EL DEPTH
+        #algorithm = simpleai.search.greedy
+
+        #DEBUGGING
         print('\n%s' % (self.printState(initial_state)))
 
         return initial_state,final_state,algorithm
-
 
     def printState (self,state):
         '''Return a string to pretty-print the state '''
@@ -311,7 +315,7 @@ class GameProblem(SearchProblem):
         print(state)
         result = None
         for customer_number in range(len(state[customers])):
-            #Find corresponding client. If found, update result
+            # Find corresponding client. If found, update result
             if (cmp(state[deliverer][coords], state[customers][customer_number][coords]) == 0):
                 result = state[customers][customer_number][pizzas]
 
@@ -361,6 +365,7 @@ class GameProblem(SearchProblem):
         super(GameProblem,self).__init__(self.INITIAL_STATE)
 
         print ('-- INITIALIZATION OK')
+
         return True
 
     # END initializeProblem
